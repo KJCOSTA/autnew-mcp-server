@@ -1,40 +1,25 @@
-import { Octokit } from "@octokit/rest";
-
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
-
-const OWNER = "KJCOSTA";
-const REPO = "AUTNEW-STARTER-V1---CLAUDE";
-const BRANCH = "main";
-
 export default async function handler(req, res) {
+  // ✅ CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
-    return res.status(405).end();
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  try {
-    const { path, content, message } = req.body;
-
-    const { data: file } = await octokit.repos.getContent({
-      owner: OWNER,
-      repo: REPO,
-      path,
-      ref: BRANCH,
-    });
-
-    await octokit.repos.createOrUpdateFileContents({
-      owner: OWNER,
-      repo: REPO,
-      path,
-      message,
-      content: Buffer.from(content).toString("base64"),
-      sha: file.sha,
-      branch: BRANCH,
-    });
-
-    res.json({ ok: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  const auth = req.headers.authorization || "";
+  if (!auth.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing Bearer token" });
   }
+
+  // 🔴 por enquanto só confirma que chegou
+  return res.status(200).json({
+    ok: true,
+    message: "MCP recebeu a requisição com sucesso"
+  });
 }
