@@ -1,0 +1,8 @@
+{
+  "name": "autnew-mcp-server",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@octokit/rest": "^20.0.0"
+  }
+}
